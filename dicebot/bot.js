@@ -1,4 +1,5 @@
 /*
+  A ping pong bot, whenever you send "ping", it replies "pong".
 */
 
 // Import the discord.js module
@@ -65,20 +66,40 @@ client.on('message', message => {
 			case 'summon': 
 				var msg = "";
 				var files = [];
-				for (var i=0;i<10;i++) {
-					var Result = GetRandomNum(1,100);
-					if (Result < 5) {
-						var id = GetRandomNum(1,54);
-						files.push("img/servent/5/"+id+".jpg");
-					} else if (Result < 20) {
-						var id = GetRandomNum(1,53);
-						files.push("img/servent/4/"+id+".jpg");
-					} else {
-						var id = GetRandomNum(1,36);
-						files.push("img/servent/3/"+id+".jpg");
+				var num_3 = 10, num_equip = 10;
+				while (num_3 == 10 || num_equip == 10) {
+					files.length = 0;   // clear the array
+					num_3 = 0; num_equip = 0;
+					for (var i=0;i<10;i++) {
+						var Result = GetRandomNum(1,100);
+						if (Result < 1) {
+							var id = GetRandomNum(1,54);
+							files.push("img/servent/5/"+id+".jpg");
+						} else if (Result < 5) {
+							var id = GetRandomNum(1,19);
+							files.push("img/equipments/5/"+id+".jpg");
+							num_equip++;
+						} else if (Result < 9) {
+							var id = GetRandomNum(1,53);
+							files.push("img/servent/4/"+id+".jpg");
+						} else if (Result < 25) {
+							var id = GetRandomNum(1,28);
+							files.push("img/equipments/4/"+id+".jpg");
+							num_equip++;
+						} else if (Result < 39) {
+							var id = GetRandomNum(1,36);
+							files.push("img/servent/3/"+id+".jpg");
+							num_3++;
+						}
+						else {
+							var id = GetRandomNum(1,46);
+							files.push("img/equipments/3/"+id+".jpg");
+							num_equip++;
+							num_3++;
+						}
 					}
-					msg = msg + Result + " ";
 				}
+				msg = msg + num_3 + " " + num_equip;
 				message.channel.send("",{files:[files[0],files[1],files[2],files[3],files[4],files[5],files[6],files[7],files[8],files[9]]});
 				break;
 		}
