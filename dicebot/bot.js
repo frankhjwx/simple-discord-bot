@@ -1,5 +1,4 @@
 /*
-  A ping pong bot, whenever you send "ping", it replies "pong".
 */
 
 // Import the discord.js module
