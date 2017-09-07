@@ -25,6 +25,19 @@ function GetRandomNum(Min,Max)
 	return(Min + Math.round(Rand * Range));   
 }  
 
+function sleep(miliseconds) {
+    var currentTime = new Date().getTime();
+    while (currentTime + miliseconds >= new Date().getTime()) {
+    }
+}
+
+function judgeMemberAdmin(member){
+	if (!member.roles.exists('name','Administrator') && !member.roles.exists('name','Key Person'))
+		return false;
+	else
+		return true;
+}
+
 // Create an event listener for messages
 client.on('message', message => {
 	// If the message is "ping"
@@ -32,7 +45,7 @@ client.on('message', message => {
   
 		args = message.content.substring(1).split(' ');
 		var cmd = args[0];
-	
+		
 		switch(cmd) {
 		
 			case 'ping':
@@ -140,7 +153,41 @@ client.on('message', message => {
 				message.channel.send("",{files:["tmp.jpg"]});
 				//message.channel.send(msg,{files:[files[0],files[1],files[2],files[3],files[4],files[5],files[6],files[7],files[8],files[9]]});
 				break;
-			
+			case 'setchat':
+				if (!judgeMemberAdmin(message.member)){
+					message.channel.send("你没有相关权限！");
+				} else {
+					var server = message.guild;
+					var name = "chatroom" + GetRandomNum(10000,99999);
+					server.createChannel(name,"text");
+					message.channel.send("临时会话已建立");
+				}
+				break;
+			case 'ally':
+				if (parseInt(args[1])>=10000 && parseInt(args[1])<=99999) {
+					
+					var name = 'chatroom' + parseInt(args[1]);
+					var channel = message.guild.channels.find('name' , name);
+					if (!judgeMemberAdmin(message.member)){
+						message.channel.send("你没有相关权限！");
+						break;
+					} else {
+						channel.overwritePermissions(message.guild.roles.find('name','Observer') , {SEND_MESSAGES: false});
+						for (var i = 1; i <= 7; i++){
+							channel.overwritePermissions(message.guild.roles.find('name','Player'+i) , {READ_MESSAGES: false});
+						}
+						for (var i = 2; i < args.length;i++){
+							if (parseInt(args[i])>=1 && parseInt(args[i])<=7) {
+								channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {READ_MESSAGES: true});
+								channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {SEND_MESSAGES: true});
+							}
+						}
+						message.channel.send("权限设置成功");
+					}
+				} else {
+					message.channel.send("权限设置有误，请参阅!help");
+				}
+				
 		}
 	}
 });
