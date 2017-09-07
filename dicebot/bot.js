@@ -214,9 +214,25 @@ client.on('message', message => {
 					}
 				}
 				break;
+			case 'delete':
+				if (message.channel.name == "administrators") {
+					if (parseInt(args[1])>=10000 && parseInt(args[1])<=99999) {
+						var name = 'chatroom' + parseInt(args[1]);
+						if (!message.guild.channels.exists('name' , name)) {
+							message.channel.send("频道删除失败，请确认数字是否正确");
+						} else {
+							var channel = message.guild.channels.find('name' , name);
+							channel.delete();
+							message.channel.send("频道删除成功");
+						}
+					} else {
+						message.channel.send("频道号码有误，请参阅!help");
+					}
+				}
+				break;
 			case 'help':
 				if (message.channel.name == "administrators") {
-					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道；\n\n !ally + 数字A + 数字B1 + 数字B2 + ...：对临时频道A进行权限设置，使其成为B1、B2、...的临时聊天频道； \n !ally + 数字A1 + 数字A2 + ...：对刚刚建立的临时频道进行权限设置，使其成为A1、A2、...的临时聊天频道");	
+					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道；\n\n !ally + 数字A + 数字B1 + 数字B2 + ...：对临时频道A进行权限设置，使其成为B1、B2、...的临时聊天频道； \n !ally + 数字A1 + 数字A2 + ...：对刚刚建立的临时频道进行权限设置，使其成为A1、A2、...的临时聊天频道；\n\n !delete + 数字A：删除频道A");	
 				} else {
 					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境");	
 				}
