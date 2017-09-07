@@ -49,6 +49,12 @@ function rewritePermissions(name, message, args){
 	channel.overwritePermissions(message.guild.roles.find('name','Observer') , {READ_MESSAGES: true, SEND_MESSAGES: false});
 }
 
+function judgeChannelAdmin(message){
+	if (message.channel.name == "administrators" || message.channel.name == "kp")
+		return true;
+	return false;
+}
+
 var tmproom;
 // Create an event listener for messages
 client.on('message', message => {
@@ -173,7 +179,7 @@ client.on('message', message => {
 				}
 				break;
 			case 'setchat':
-				if (message.channel.name == "administrators") {
+				if (judgeChannelAdmin(message)) {
 					if (!judgeMemberAdmin(message.member)){
 						message.channel.send("你没有相关权限！");
 					} else {
@@ -201,7 +207,7 @@ client.on('message', message => {
 				}
 				break;
 			case 'delete':
-				if (message.channel.name == "administrators") {
+				if (judgeChannelAdmin(message)) {
 					if (parseInt(args[1])>=10000 && parseInt(args[1])<=99999) {
 						var name = 'chatroom' + parseInt(args[1]);
 						if (!message.guild.channels.exists('name' , name)) {
@@ -227,16 +233,18 @@ client.on('message', message => {
 				}
 				break;
 			case 'announcement':
-				if (message.channel.name == "administrators") {
+				if (judgeChannelAdmin(message)) {
 					for (var i = 1; i <= 7 ; i++){
 						var plchannel = client.channels.find('name' , 'player' + i);
 						plchannel.send("公告：" + message.content.substring(14));
 					}
+					var livechannel = client.channels.find('name' , 'live-broadcasting');
+					livechannel.send("公告：" + message.content.substring(14));
 					message.channel.send("公告发送成功！");
 				}
 				break;
 			case 'renewchannel':
-				if (message.channel.name == "administrators" && args.length == 2 && parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+				if (judgeChannelAdmin(message) && args.length == 2 && parseInt(args[1])>=1 && parseInt(args[1])<=7) {
 					var channel = message.guild.channels.find('name' , 'player'+parseInt(args[1]));
 					var per = message.guild.channels.find('name' , 'player'+parseInt(args[1])).permissionOverwrites;
 					channel.delete();
@@ -256,10 +264,21 @@ client.on('message', message => {
 						server.createChannel(name,"text",perarr);	
 					}
 					message.channel.send("全pl频道刷新成功！");
+				} else if (message.member.nickname == '小古') {
+					if (message.guild.channels.exists('name' , args[1])){
+						var channel = message.guild.channels.find('name' , args[1]);
+						var per = message.guild.channels.find('name' , args[1]).permissionOverwrites;
+						channel.delete();
+						var perarr = per.array();
+						var server = message.guild;
+						var name = args[1];
+						server.createChannel(name,"text",perarr);
+						message.channel.send('done');
+					}
 				}
 				break;
 			case 'help':
-				if (message.channel.name == "administrators") {
+				if (judgeChannelAdmin(message)) {
 					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道； \n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的临时频道； \n\n !delete + 数字A (在admin频道)：删除频道A； \n !delete(在临时频道)：删除本频道 \n\n !announcement + 广播信息：向全pl频道公告广播信息；\n\n !renewchannel + 数字A：刷新playerA的频道，将以往数据全部抹除 \n !renewchannel all：抹除所有player的聊天数据 (!!!请注意 renewchannel只建议在新一轮游戏时使用，正常情况请不要启动！)");	
 				} else {
 					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境");	
@@ -268,6 +287,41 @@ client.on('message', message => {
 			
 		}
 	}
+	
+	for (var i=1; i<=7; i++)
+		if (message.channel == client.channels.find('name' , 'player'+i)) {
+			var livechannel = client.channels.find('name' , 'live-broadcasting');
+			var msg;
+			if (message.member.roles.find('name','Player'+i))
+				msg = 'player'+i;
+			else 
+				msg = message.member.nickname + '(#player'+i+')';
+			if (message.content.search('公告') < 0)
+				livechannel.send(msg + ": "+message.content);
+		}
+	
+	var allchannels = message.guild.channels.array();
+	for (var i=0; i<allchannels.length; i++) {
+		if (allchannels[i].name.substring(0,8) == 'chatroom' && message.channel == client.channels.find('name', allchannels[i].name)) {
+			var livechannel = client.channels.find('name' , 'live-broadcasting');
+			var msg;
+			if (message.member.roles.find('name','Player'+i))
+				msg = 'player'+i;
+			else 
+				msg = message.member.nickname;
+			msg = msg + '(#' + allchannels[i].name + ')';
+			if (message.content.search('公告') < 0)
+			 livechannel.send(msg + ": "+message.content);
+		}
+	}
+	
+	// if (message.content.substring(0, 1) == '~' && message.member.roles.exists('name', 'Key Person')) {
+		// var args = message.content.substring(1).split(' ');
+		// if (parseInt(args[0])>=1 && parseInt(args[0])<=7) {
+			// var plchannel = client.channels.find('name', 'player'+parseInt(args[0]));
+			// plchannel.send(message.content.substring(3));
+		// }
+	// }
 });
 
 // Log our bot in
