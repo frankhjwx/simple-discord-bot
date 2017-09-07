@@ -211,14 +211,56 @@ client.on('message', message => {
 							channel.delete();
 							message.channel.send("频道 "+name+" 删除成功");
 						}
-					} else {
+					}  else {
 						message.channel.send("频道号码有误，请参阅!help");
 					}
+				} else if (message.channel.name.substring(0,8) == 'chatroom' && args.length == 1){
+					if (!judgeMemberAdmin(message.member)){
+						message.channel.send("你没有相关权限！");
+					} else {
+						var name = message.channel.name;
+						var channel = message.guild.channels.find('name' , name);
+						channel.delete();
+						var adminchannel = client.channels.find('name' , 'administrators');
+						adminchannel.send("频道 " + name + " 删除成功");
+					}
+				}
+				break;
+			case 'announcement':
+				if (message.channel.name == "administrators") {
+					for (var i = 1; i <= 7 ; i++){
+						var plchannel = client.channels.find('name' , 'player' + i);
+						plchannel.send("公告：" + message.content.substring(14));
+					}
+					message.channel.send("公告发送成功！");
+				}
+				break;
+			case 'renewchannel':
+				if (message.channel.name == "administrators" && args.length == 2 && parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+					var channel = message.guild.channels.find('name' , 'player'+parseInt(args[1]));
+					var per = message.guild.channels.find('name' , 'player'+parseInt(args[1])).permissionOverwrites;
+					channel.delete();
+					var name = 'player'+ parseInt(args[1]);
+					var perarr = per.array();
+					var server = message.guild;
+					server.createChannel(name,"text",perarr);
+					message.channel.send("pl"+parseInt(args[1])+"的频道刷新成功！");
+				} else if (args[1] == "all") {
+					for (var i=1; i<=7; i++) {
+						var channel = message.guild.channels.find('name' , 'player'+i);
+						var per = message.guild.channels.find('name' , 'player'+i).permissionOverwrites;
+						channel.delete();
+						var perarr = per.array();
+						var server = message.guild;
+						var name = 'player' + i;
+						server.createChannel(name,"text",perarr);	
+					}
+					message.channel.send("全pl频道刷新成功！");
 				}
 				break;
 			case 'help':
 				if (message.channel.name == "administrators") {
-					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道； \n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的临时频道； \n\n !delete + 数字A：删除频道A");	
+					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道； \n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的临时频道； \n\n !delete + 数字A (在admin频道)：删除频道A； \n !delete(在临时频道)：删除本频道 \n\n !announcement + 广播信息：向全pl频道公告广播信息；\n\n !renewchannel + 数字A：刷新playerA的频道，将以往数据全部抹除 \n !renewchannel all：抹除所有player的聊天数据 (!!!请注意 renewchannel只建议在新一轮游戏时使用，正常情况请不要启动！)");	
 				} else {
 					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境");	
 				}
