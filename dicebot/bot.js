@@ -38,6 +38,17 @@ function judgeMemberAdmin(member){
 		return true;
 }
 
+function rewritePermissions(name, message, args){
+	var channel = message.guild.channels.find('name' , name);
+	channel.overwritePermissions(message.guild.roles.find('name','Observer') , {READ_MESSAGES: true, SEND_MESSAGES: false});
+	for (var i = 1; i < args.length;i++){
+		if (parseInt(args[i])>=1 && parseInt(args[i])<=7) {
+			channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {READ_MESSAGES: true, SEND_MESSAGES: true});
+		}
+	}
+	channel.overwritePermissions(message.guild.roles.find('name','Observer') , {READ_MESSAGES: true, SEND_MESSAGES: false});
+}
+
 var tmproom;
 // Create an event listener for messages
 client.on('message', message => {
@@ -166,58 +177,26 @@ client.on('message', message => {
 					if (!judgeMemberAdmin(message.member)){
 						message.channel.send("你没有相关权限！");
 					} else {
-						var server = message.guild;
-						var name = "chatroom" + GetRandomNum(10000,99999);
-						tmproom = name;
-						
-						var per = message.guild.channels.find('name' , 'administrators').permissionOverwrites;
-						var perarr = per.array();
-						server.createChannel(name,"text",perarr);
-						message.channel.send("临时会话已建立");
-					}
-				}
-				break;
-			case 'ally':
-				if (message.channel.name == "administrators") {
-					if (parseInt(args[1])>=10000 && parseInt(args[1])<=99999) {
-						var name = 'chatroom' + parseInt(args[1]);
-						var channel = message.guild.channels.find('name' , name);
-						if (!judgeMemberAdmin(message.member)){
-							message.channel.send("你没有相关权限！");
-							break;
+						if (parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+							var server = message.guild;
+							var name = "chatroom" + GetRandomNum(10000,99999);
+							tmproom = name;
+							
+							var per = message.guild.channels.find('name' , 'administrators').permissionOverwrites;
+							var perarr = per.array();
+							server.createChannel(name,"text",perarr)
+								.then(() => rewritePermissions(name, message, args));
+							message.channel.send("临时会话已建立");
 						} else {
-							channel.overwritePermissions(message.guild.roles.find('name','Observer') , {SEND_MESSAGES: false});
-							for (var i = 1; i <= 7; i++){
-								channel.overwritePermissions(message.guild.roles.find('name','Player'+i) , {READ_MESSAGES: false});
-							}
-							for (var i = 2; i < args.length;i++){
-								if (parseInt(args[i])>=1 && parseInt(args[i])<=7) {
-									channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {READ_MESSAGES: true});
-									channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {SEND_MESSAGES: true});
-								}
-							}
-							message.channel.send("权限设置成功");
+							var server = message.guild;
+							var name = "chatroom" + GetRandomNum(10000,99999);
+							tmproom = name;
+							
+							var per = message.guild.channels.find('name' , 'administrators').permissionOverwrites;
+							var perarr = per.array();
+							server.createChannel(name,"text",perarr);
+							message.channel.send("临时会话已建立");
 						}
-					} else if (parseInt(args[1])>=1 && parseInt(args[1])<=7){
-						var channel = message.guild.channels.find('name' , tmproom);
-						if (!judgeMemberAdmin(message.member)){
-							message.channel.send("你没有相关权限！");
-							break;
-						} else {
-							channel.overwritePermissions(message.guild.roles.find('name','Observer') , {SEND_MESSAGES: false});
-							for (var i = 1; i <= 7; i++){
-								channel.overwritePermissions(message.guild.roles.find('name','Player'+i) , {READ_MESSAGES: false});
-							}
-							for (var i = 1; i < args.length;i++){
-								if (parseInt(args[i])>=1 && parseInt(args[i])<=7) {
-									channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {READ_MESSAGES: true});
-									channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {SEND_MESSAGES: true});
-								}
-							}
-							message.channel.send("权限设置成功");
-						}
-					} else {
-						message.channel.send("权限设置有误，请参阅!help");
 					}
 				}
 				break;
@@ -230,7 +209,7 @@ client.on('message', message => {
 						} else {
 							var channel = message.guild.channels.find('name' , name);
 							channel.delete();
-							message.channel.send("频道删除成功");
+							message.channel.send("频道 "+name+" 删除成功");
 						}
 					} else {
 						message.channel.send("频道号码有误，请参阅!help");
@@ -239,7 +218,7 @@ client.on('message', message => {
 				break;
 			case 'help':
 				if (message.channel.name == "administrators") {
-					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道；\n\n !ally + 数字A + 数字B1 + 数字B2 + ...：对临时频道A进行权限设置，使其成为B1、B2、...的临时聊天频道； \n !ally + 数字A1 + 数字A2 + ...：对刚刚建立的临时频道进行权限设置，使其成为A1、A2、...的临时聊天频道；\n\n !delete + 数字A：删除频道A");	
+					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat：建立一个新的临时频道； \n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的临时频道； \n\n !delete + 数字A：删除频道A");	
 				} else {
 					message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境");	
 				}
