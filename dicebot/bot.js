@@ -187,7 +187,7 @@ client.on('message', message => {
 						.write('gudako.jpg', function (err) {
 							if (err) console.log(err);
 						});
-					message.channel.send("",{files:["tmp.jpg"]});
+					message.channel.send("",{files:["gudako.jpg"]});
 					//message.channel.send(msg,{files:[files[0],files[1],files[2],files[3],files[4],files[5],files[6],files[7],files[8],files[9]]});
 				}
 				break;
@@ -224,7 +224,7 @@ client.on('message', message => {
 				}
 				break;
 			case 'checkroom':
-				if (judgeMemberAdmin(message)) {
+				if (message.channel.name.substring(0,6)!='player' && message.channel.name.substring(0,8)!='chatroom') {
 					if (args.length == 1) {
 						var msg = '';
 						var allchannels = message.guild.channels.array();
@@ -388,8 +388,8 @@ client.on('message', message => {
 			var livechannel = client.channels.find('name' , 'live-broadcasting');
 			var msg;
 			msg = message.member.nickname + '(#player'+i+')';
-			if (message.content.search('公告') < 0)
-				livechannel.send(msg + ": "+message.content);
+			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')))
+			 livechannel.send(msg + ": "+message.content);
 		}
 	
 	var allchannels = message.guild.channels.array();
@@ -401,8 +401,8 @@ client.on('message', message => {
 				msg = 'player'+i;
 			else 
 				msg = message.member.nickname;
-			msg = msg + '(#' + allchannels[i].name + ')';
-			if (message.content.search('公告') < 0)
+			msg = msg + '(#' + allchannels[i].name + ')'; 
+			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')))
 			 livechannel.send(msg + ": "+message.content);
 		}
 	}
