@@ -55,9 +55,22 @@ function judgeChannelAdmin(message){
 	return false;
 }
 
+function msgTime(time){
+	var msg = time.year + '/' + time.month + '/' + time.date + ' ' + time.hours + ':' + time.minutes + ':' + time.seconds;
+	return msg;
+}
+
 var tmproom;
 // Create an event listener for messages
 client.on('message', message => {
+	// 记录msg
+	if (message.content!="") {
+		var fs = require("fs"); 
+		fs.appendFile('logs/log_' + message.channel.name + '.txt', message.member.nickname + '(#'+message.channel.name + ') ' + String(message.createdAt) + ' :' + message.content + '\r\n', function (err) {
+			if (err) throw err;
+			//console.log('The "data to append" was appended to file!');
+		});
+	}
 	// If the message is "ping"
 	if (message.content.substring(0, 1) == '!' || message.content.substring(0, 2) == '！') {
   
@@ -171,7 +184,7 @@ client.on('message', message => {
 						.in('-page','+384+280')
 						.in(files[11])
 						.mosaic()
-						.write('tmp.jpg', function (err) {
+						.write('gudako.jpg', function (err) {
 							if (err) console.log(err);
 						});
 					message.channel.send("",{files:["tmp.jpg"]});
@@ -193,6 +206,14 @@ client.on('message', message => {
 							server.createChannel(name,"text",perarr)
 								.then(() => rewritePermissions(name, message, args));
 							message.channel.send("临时会话已建立");
+							
+							var msg = "";
+							for (var i=1; i<args.length; i++) {
+								msg = msg + " player" + parseInt(args[i]);
+							}
+							var livechannel = client.channels.find('name' , 'live-broadcasting');
+							
+							livechannel.send("临时会话频道 "+name+" 已建立，为"+msg+"的结盟频道");
 						} else {
 							var server = message.guild;
 							var name = "chatroom" + GetRandomNum(10000,99999);
@@ -202,6 +223,7 @@ client.on('message', message => {
 							var perarr = per.array();
 							server.createChannel(name,"text",perarr);
 							message.channel.send("临时会话已建立");
+							
 						}
 					}
 				}
@@ -216,6 +238,8 @@ client.on('message', message => {
 							var channel = message.guild.channels.find('name' , name);
 							channel.delete();
 							message.channel.send("频道 "+name+" 删除成功");
+							var livechannel = client.channels.find('name' , 'live-broadcasting');
+							livechannel.send("临时会话频道 "+name+" 已删除");
 						}
 					}  else {
 						message.channel.send("频道号码有误，请参阅!help");
@@ -238,6 +262,10 @@ client.on('message', message => {
 						var plchannel = client.channels.find('name' , 'player' + i);
 						plchannel.send("公告：" + message.content.substring(14));
 					}
+					var allchannels = message.guild.channels.array();
+					for (var i=0; i<allchannels.length; i++) 
+						if (allchannels[i].name.substring(0,8) == 'chatroom')
+							allchannels[i].send("公告：" + message.content.substring(14));
 					var livechannel = client.channels.find('name' , 'live-broadcasting');
 					livechannel.send("公告：" + message.content.substring(14));
 					message.channel.send("公告发送成功！");
