@@ -227,7 +227,7 @@ client.on('message', message => {
 							}
 							var livechannel = findchannel(message, 'live-broadcasting');
 							
-							livechannel.send("临时会话频道 "+name+" 已建立，为"+msg+"的结盟频道");
+							livechannel.send("```临时会话频道 "+name+" 已建立，为"+msg+"的结盟频道```");
 							
 						}
 					}
@@ -305,7 +305,7 @@ client.on('message', message => {
 							channel.delete();
 							message.channel.send("频道 "+name+" 删除成功");
 							var livechannel = findchannel(message, 'live-broadcasting');
-							livechannel.send("临时会话频道 "+name+" 已删除");
+							livechannel.send("```临时会话频道 "+name+" 已删除```");
 						}
 					}  else {
 						message.channel.send("频道号码有误，请参阅!help");
@@ -319,6 +319,8 @@ client.on('message', message => {
 						channel.delete();
 						var adminchannel = findchannel(message, 'administrators');
 						adminchannel.send("频道 " + name + " 删除成功");
+						var livechannel = findchannel(message, 'live-broadcasting');
+						livechannel.send("```临时会话频道 "+name+" 已删除```");
 					}
 				}
 				break;
@@ -326,14 +328,14 @@ client.on('message', message => {
 				if (judgeChannelAdmin(message)) {
 					for (var i = 1; i <= 7 ; i++){
 						var plchannel = findchannel(message, 'player'+i);
-						plchannel.send("公告：" + message.content.substring(14));
+						plchannel.send("```公告: " + message.content.substring(14) +"```");
 					}
 					var allchannels = message.guild.channels.array();
 					for (var i=0; i<allchannels.length; i++) 
 						if (allchannels[i].name.substring(0,8) == 'chatroom')
-							allchannels[i].send("公告：" + message.content.substring(14));
+							allchannels[i].send("```公告: " + message.content.substring(14)+"```");
 					var livechannel = findchannel(message, 'live-broadcasting');
-					livechannel.send("公告：" + message.content.substring(14));
+					livechannel.send("```公告: " + message.content.substring(14)+"```");
 					message.channel.send("公告发送成功！");
 				}
 				break;
@@ -376,7 +378,7 @@ client.on('message', message => {
 			case 'help':
 				if (args.length == 1) {
 					if (judgeChannelAdmin(message)) {
-						message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的__临时频道__； \n\n !delete + 数字A (在admin频道)：删除临时频道A； \n !delete(在临时频道)：删除本频道 \n\n !announcement + 广播信息：向全pl频道公告广播信息；\n\n !renewchannel + 数字A：刷新__playerA__的频道，将以往数据全部抹除 \n !renewchannel all：抹除所有__player__的聊天数据 (**!!!请注意 renewchannel只建议在新一轮游戏时使用，正常情况请不要启动！**)； \n\n **KP使用** ~数字X + message： 若数字为1~7，则向__playerX__的频道发送一条信息，若数字为10000~99999，则向__chatroomX__频道发送一条信息。 \n\n !checkroom + 临时频道号X：查看__临时频道X__的结盟信息。");	
+						message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境；\n\n !setchat + 数字A1 + 数字A2 + ...：新建一个A1、A2、...的__临时频道__； \n\n !delete + 数字A (在admin频道)：删除临时频道A； \n !delete(在临时频道)：删除本频道 \n\n !announcement + 广播信息：向全pl频道公告广播信息；\n\n !renewchannel + 数字A：刷新__playerA__的频道，将以往数据全部抹除 \n !renewchannel all：抹除所有__player__的聊天数据 (**!!!请注意 renewchannel只建议在新一轮游戏时使用，正常情况请不要启动！**)； \n\n **KP使用** ~数字X + message： 若数字为1~7，则向__playerX__的频道发送一条信息，若数字为10000~99999，则向__chatroomX__频道发送一条信息。 \n\n !checkroom + 临时频道号X：查看__临时频道X__的结盟信息。\n !checkroom：查看所有临时频道的结盟信息。");	
 					} else {
 						message.channel.send("欢迎使用咕哒子机器人！\n\n !roll: 用于掷点(1~100)； !roll + 数字A：在1~A内掷点； !roll + 数字A + 数字B： 在1~A内掷B个点 \n\n !summon：抽卡，请前往#playroom进行避免影响频道环境 \n\n");	
 					}
@@ -402,7 +404,7 @@ client.on('message', message => {
 							break;
 						case 'checkroom':
 							if (judgeChannelAdmin(message))
-								message.channel.send("!checkroom + 临时频道号X：查看__临时频道X__的结盟信息。\n e.g.:!checkroom 12345");
+								message.channel.send("!checkroom + 临时频道号X：查看__临时频道X__的结盟信息。\n !checkroom：查看所有临时频道的结盟信息。\n e.g.:!checkroom 12345");
 							break;
 						case '~':
 							if (judgeChannelAdmin(message))
@@ -418,18 +420,24 @@ client.on('message', message => {
 		}
 	}
 	
+	// livechannel  player rooms
 	for (var i=1; i<=7; i++)
 		if (channelexists(message,'player'+i) && message.channel == findchannel(message, 'player'+i)) {
 			var livechannel = findchannel(message, 'live-broadcasting');
 			var msg;
-			if (message.member.nickname == "")
+			if (message.member.nickname == undefined)
 				msg = message.member.user.username + '(#player'+i+')';
 			else
 				msg = message.member.nickname + '(#player'+i+')';
-			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')) && message.content!="")
-			 livechannel.send(msg + ": "+message.content);
+			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')) && message.content!="") {
+				if (message.content.search('```KP: '>=0) && message.member.roles.find('name','bot')){
+					livechannel.send("```KP(#player"+i+"): "+message.content.substring(7));
+				} else 
+					livechannel.send("```" + msg + ": "+message.content+"```");
+			}
 		}
 	
+	// livechannel tempchat rooms
 	var allchannels = message.guild.channels.array();
 	for (var i=0; i<allchannels.length; i++) {
 		if (allchannels[i].name.substring(0,8) == 'chatroom' && message.channel == findchannel(message, allchannels[i].name)) {
@@ -438,14 +446,18 @@ client.on('message', message => {
 			if (message.member.roles.find('name','Player'+i))
 				msg = 'player'+i;
 			else {
-				if (message.member.nickname == "")
+				if (message.member.nickname == undefined)
 					msg = message.member.user.username;
 				else
 					msg = message.member.nickname;
 			}
 			msg = msg + '(#' + allchannels[i].name + ')'; 
-			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')) && message.content!="")
-			 livechannel.send(msg + ": "+message.content);
+			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')) && message.content!="") {
+				if (message.content.search('```KP: '>=0) && message.member.roles.find('name','bot')){
+					livechannel.send("```KP("+allchannels[i].name+"): "+message.content.substring(7));
+				} else 
+					livechannel.send("```" + msg + ": "+message.content+"```");
+			}
 		}
 	}
 	
@@ -453,12 +465,12 @@ client.on('message', message => {
 		var args = message.content.substring(1).split(' ');
 		if (parseInt(args[0])>=1 && parseInt(args[0])<=7) {
 			var plchannel = findchannel(message, 'player'+parseInt(args[0]));
-			plchannel.send(message.content.substring(3));
+			plchannel.send("```KP: "+message.content.substring(3)+"```");
 			message.channel.send('消息发送成功');
 		} else if (parseInt(args[0])>=10000 && parseInt(args[0])<=99999) {
 			if (client.channels.exists('name', 'chatroom'+parseInt(args[0]))) {
 				var plchannel = findchannel(message, 'chatroom'+parseInt(args[0]));
-				plchannel.send(message.content.substring(7));
+				plchannel.send("```KP: "+message.content.substring(7)+"```");
 				message.channel.send('消息发送成功');
 			}
 		}
