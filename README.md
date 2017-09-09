@@ -16,10 +16,10 @@ Create a temp channel for `playerNum1`,`playerNum2` and so on to chat. Other pla
 A random number between 10000 and 99999 is named after the temp channel. e.g.: `#Chatroom 39284`
 
 #### !delete [chatroomNumber]
-Delete a temp channel created by command `!setchat`. Input chatroom number `num1` in `#admin` channel to delete any chatroom,or just input `delete` in the chatroom to delete that chatroom.
+Delete a temp channel created by command `!setchat`. Input chatroom number `num1` in `#admin` channel to delete any chatroom, or just input `delete` in the chatroom to delete that chatroom.
 
 #### !checkroom [chatroomNumber]
-Check the players availble in a channel.
+Check the players availble in a channel. If this command is followed with nothing, the bot will return info of all chatrooms. 
 
 #### !renewchannel [all|playerNum1]
 Clear chatting history in player channels. Use all to clear all the players' channels.
