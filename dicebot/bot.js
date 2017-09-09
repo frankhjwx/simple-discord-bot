@@ -53,6 +53,12 @@ function findchannel(message, name) {
 	return client.channels.find('id' , message.guild.channels.find('name',name).id);
 }
 
+function channelexists(message, name){
+	if (message.guild.channels.exists('name',name) == false)
+		return false;
+	return client.channels.exists('id' , message.guild.channels.find('name',name).id);
+}
+
 function judgeChannelAdmin(message){
 	if (message.channel.name == "administrators" || message.channel.name == "kp")
 		return true;
@@ -227,6 +233,29 @@ client.on('message', message => {
 					}
 				}
 				break;
+			// 仅用于pl频道被误操作(删除)时使用
+			// case 'setplayer':
+				// if (judgeChannelAdmin(message)) {
+					// if (!judgeMemberAdmin(message.member)){
+						// message.channel.send("你没有相关权限！");
+					// } else {
+						// if (parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+							// var server = message.guild;
+							// var name = "player" + parseInt(args[1]);
+							
+							// tmproom = name;
+							
+							// var per = message.guild.channels.find('name' , 'administrators').permissionOverwrites;
+							// var perarr = per.array();
+							// server.createChannel(name,"text",perarr)
+								// .then(() => rewritePermissions(name, message, args));
+							// message.channel.send("pl频道"+name+"已建立");
+							
+							
+						// }
+					// }
+				// }
+				// break;
 			case 'checkroom':
 				if (message.channel.name.substring(0,6)!='player' && message.channel.name.substring(0,8)!='chatroom' && message.channel.name.substring(0,8)!='playroom') {
 					if (args.length == 1) {
@@ -320,13 +349,15 @@ client.on('message', message => {
 					message.channel.send("pl"+parseInt(args[1])+"的频道刷新成功！");
 				} else if (judgeChannelAdmin(message) && args[1] == "all") {
 					for (var i=1; i<=7; i++) {
-						var channel = message.guild.channels.find('name' , 'player'+i);
-						var per = message.guild.channels.find('name' , 'player'+i).permissionOverwrites;
-						channel.delete();
-						var perarr = per.array();
-						var server = message.guild;
-						var name = 'player' + i;
-						server.createChannel(name,"text",perarr);	
+						if (message.guild.channels.exists('name' , 'player'+i)) {
+							var channel = message.guild.channels.find('name' , 'player'+i);
+							var per = message.guild.channels.find('name' , 'player'+i).permissionOverwrites;
+							channel.delete();
+							var perarr = per.array();
+							var server = message.guild;
+							var name = 'player' + i;
+							server.createChannel(name,"text",perarr);	
+						}
 					}
 					message.channel.send("全pl频道刷新成功！");
 				} else if (message.member.nickname == '小古') {
@@ -388,7 +419,7 @@ client.on('message', message => {
 	}
 	
 	for (var i=1; i<=7; i++)
-		if (message.channel == findchannel(message, 'player'+i)) {
+		if (channelexists(message,'player'+i) && message.channel == findchannel(message, 'player'+i)) {
 			var livechannel = findchannel(message, 'live-broadcasting');
 			var msg;
 			if (message.member.nickname == "")
