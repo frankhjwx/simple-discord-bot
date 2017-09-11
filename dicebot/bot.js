@@ -9,7 +9,7 @@ const Discord = require('discord.js');
 const client = new Discord.Client();
 
 // The token of your bot - https://discordapp.com/developers/applications/me
-const token = 'MzU0NTcxMDAwMzgzMjc1MDA4.DJALpg.QqSaKBCxW69WSTu1yqazAcaMepA';
+const token = 'some random token';
 
 // The ready event is vital, it means that your bot will only start reacting to information
 // from Discord _after_ ready is emitted
@@ -42,8 +42,8 @@ function rewritePermissions(name, message, args){
 	var channel = message.guild.channels.find('name' , name);
 	channel.overwritePermissions(message.guild.roles.find('name','Observer') , {READ_MESSAGES: true, SEND_MESSAGES: false});
 	for (var i = 1; i < args.length;i++){
-		if (parseInt(args[i])>=1 && parseInt(args[i])<=7) {
-			channel.overwritePermissions(message.guild.roles.find('name','Player'+parseInt(args[i])) , {READ_MESSAGES: true, SEND_MESSAGES: true});
+		if (args[i]>='a' && args[i]<='g') {
+			channel.overwritePermissions(message.guild.roles.find('name','Player'+args[i]) , {READ_MESSAGES: true, SEND_MESSAGES: true});
 		}
 	}
 	channel.overwritePermissions(message.guild.roles.find('name','Observer') , {READ_MESSAGES: true, SEND_MESSAGES: false});
@@ -213,7 +213,7 @@ client.on('message', message => {
 					if (!judgeMemberAdmin(message.member)){
 						message.channel.send("你没有相关权限！");
 					} else {
-						if (parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+						if (args[1]>='a' && args[1]<='g') {
 							var server = message.guild;
 							var name = "chatroom" + GetRandomNum(10000,99999);
 							while (message.guild.channels.exists('name',name)) {
@@ -230,7 +230,7 @@ client.on('message', message => {
 							
 							var msg = "";
 							for (var i=1; i<args.length; i++) {
-								msg = msg + " player" + parseInt(args[i]);
+								msg = msg + " player" + args[i];
 							}
 							var livechannel = findchannel(message, 'live-broadcasting');
 							
@@ -247,9 +247,9 @@ client.on('message', message => {
 					// if (!judgeMemberAdmin(message.member)){
 						// message.channel.send("你没有相关权限！");
 					// } else {
-						// if (parseInt(args[1])>=1 && parseInt(args[1])<=7) {
+						// if (args[1]>='a' && args[1]<='g') {
 							// var server = message.guild;
-							// var name = "player" + parseInt(args[1]);
+							// var name = "player" + args[1];
 							
 							// tmproom = name;
 							
@@ -274,9 +274,9 @@ client.on('message', message => {
 								var tmpmsg = '';
 								var channel = allchannels[j];
 								for (var i=1;i<=7;i++) {
-									var roleid = message.guild.roles.find('name', 'Player'+i).id;
+									var roleid = message.guild.roles.find('name', 'Player'+String.fromCharCode(0x61-1+i)).id;
 									if (channel.permissionOverwrites.exists('id', roleid))
-										tmpmsg = tmpmsg + ' player' + i;
+										tmpmsg = tmpmsg + ' player' + String.fromCharCode(0x61-1+i);
 								}
 								tmpmsg = '临时会话频道'+allchannels[j].name+'为'+tmpmsg+' 的结盟频道';
 								msg = msg + tmpmsg + '\n';
@@ -289,9 +289,9 @@ client.on('message', message => {
 							var msg = '';
 							var channel = message.guild.channels.find('name', 'chatroom'+parseInt(args[1]));
 							for (var i=1;i<=7;i++) {
-								var roleid = message.guild.roles.find('name', 'Player'+i).id;
+								var roleid = message.guild.roles.find('name', 'Player'+String.fromCharCode(0x61-1+i)).id;
 								if (channel.permissionOverwrites.exists('id', roleid))
-									msg = msg + ' player' + i;
+									msg = msg + ' player' + String.fromCharCode(0x61-1+i);
 							}
 							message.channel.send('临时会话频道'+channel.name+'为'+msg+' 的结盟频道');
 						} else {
@@ -335,7 +335,9 @@ client.on('message', message => {
 			case 'announcement': case 'a':
 				if (judgeMemberAdmin(message.member)) {
 					for (var i = 1; i <= 7 ; i++){
-						var plchannel = findchannel(message, 'player'+i);
+						console.log('player'+String.fromCharCode(0x61-1+i));
+						var plchannel = findchannel(message, 'player'+String.fromCharCode(0x61-1+i));
+						
 						plchannel.send("```公告: " + message.content.substring(args[0].length+2) +"```");
 					}
 					var allchannels = message.guild.channels.array();
@@ -348,24 +350,24 @@ client.on('message', message => {
 				}
 				break;
 			case 'renewchannel':
-				if (judgeChannelAdmin(message) && args.length == 2 && parseInt(args[1])>=1 && parseInt(args[1])<=7) {
-					var channel = message.guild.channels.find('name' , 'player'+parseInt(args[1]));
-					var per = message.guild.channels.find('name' , 'player'+parseInt(args[1])).permissionOverwrites;
+				if (judgeChannelAdmin(message) && args.length == 2 && args[1]>='a' && args[1]<='g') {
+					var channel = message.guild.channels.find('name' , 'player'+args[1]);
+					var per = message.guild.channels.find('name' , 'player'+args[1]).permissionOverwrites;
 					channel.delete();
-					var name = 'player'+ parseInt(args[1]);
+					var name = 'player'+ args[1];
 					var perarr = per.array();
 					var server = message.guild;
 					server.createChannel(name,"text",perarr);
-					message.channel.send("pl"+parseInt(args[1])+"的频道刷新成功！");
+					message.channel.send("pl"+args[1]+"的频道刷新成功！");
 				} else if (judgeChannelAdmin(message) && args[1] == "all") {
 					for (var i=1; i<=7; i++) {
-						if (message.guild.channels.exists('name' , 'player'+i)) {
-							var channel = message.guild.channels.find('name' , 'player'+i);
-							var per = message.guild.channels.find('name' , 'player'+i).permissionOverwrites;
+						if (message.guild.channels.exists('name' , 'player'+String.fromCharCode(0x61-1+i))) {
+							var channel = message.guild.channels.find('name' , 'player'+String.fromCharCode(0x61-1+i));
+							var per = message.guild.channels.find('name' , 'player'+String.fromCharCode(0x61-1+i)).permissionOverwrites;
 							channel.delete();
 							var perarr = per.array();
 							var server = message.guild;
-							var name = 'player' + i;
+							var name = 'player' + String.fromCharCode(0x61-1+i);
 							server.createChannel(name,"text",perarr);	
 						}
 					}
@@ -434,16 +436,16 @@ client.on('message', message => {
 	
 	// livechannel  player rooms
 	for (var i=1; i<=7; i++)
-		if (channelexists(message,'player'+i) && message.channel == findchannel(message, 'player'+i)) {
+		if (channelexists(message,'player'+String.fromCharCode(0x61-1+i)) && message.channel == findchannel(message, 'player'+String.fromCharCode(0x61-1+i))) {
 			var livechannel = findchannel(message, 'live-broadcasting');
 			var msg;
 			if (message.member.nickname == undefined)
-				msg = message.member.user.username + '(#player'+i+')';
+				msg = message.member.user.username + '(#player'+String.fromCharCode(0x61-1+i)+')';
 			else
-				msg = message.member.nickname + '(#player'+i+')';
+				msg = message.member.nickname + '(#player'+String.fromCharCode(0x61-1+i)+')';
 			if (!(message.content.search('公告') >= 0 && message.member.roles.find('name','bot')) && message.content!="") {
 				if (message.content.search('```KP: ') >= 0 && message.member.roles.find('name','bot')){
-					livechannel.send("```KP(#player"+i+"): "+message.content.substring(7));
+					livechannel.send("```KP(#player"+String.fromCharCode(0x61-1+i)+"): "+message.content.substring(7));
 				} else 
 					livechannel.send("```" + msg + ": "+message.content+"```");
 			}
@@ -455,8 +457,8 @@ client.on('message', message => {
 		if (allchannels[i].name.substring(0,8) == 'chatroom' && message.channel == findchannel(message, allchannels[i].name)) {
 			var livechannel = findchannel(message, 'live-broadcasting');
 			var msg;
-			if (message.member.roles.find('name','Player'+i))
-				msg = 'player'+i;
+			if (message.member.roles.find('name','Player'+String.fromCharCode(0x61-1+i)))
+				msg = 'player'+String.fromCharCode(0x61-1+i);
 			else {
 				if (message.member.nickname == undefined)
 					msg = message.member.user.username;
@@ -477,8 +479,12 @@ client.on('message', message => {
 		var args = message.content.substring(1).split(' ');
 		var args2 = args[0].split(',');
 		for (var i=0; i<args2.length; i++) {
-			if (parseInt(args2[i])>=1 && parseInt(args2[i])<=7) {
-				var plchannel = findchannel(message, 'player'+parseInt(args2[i]));
+			if (args2[i]>='a' && args2[i]<='g') {
+				var plchannel = findchannel(message, 'player'+args2[i]);
+				plchannel.send("```KP: "+message.content.substring(args[0].length + 2)+"```");
+				message.channel.send('消息发送成功');
+			} else if (parseInt(args2[i])>=1 && parseInt(args2[i])<=7) {
+				var plchannel = findchannel(message, 'player'+String.fromCharCode(0x61-1+parseInt(args2[i])));
 				plchannel.send("```KP: "+message.content.substring(args[0].length + 2)+"```");
 				message.channel.send('消息发送成功');
 			} else if (parseInt(args2[i])>=10000 && parseInt(args2[i])<=99999) {
